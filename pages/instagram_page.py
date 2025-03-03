@@ -1,4 +1,5 @@
 import tkinter as tk
+from asyncio.log import logger
 from tkinter import filedialog
 import threading
 import time
@@ -8,6 +9,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 
 class InstagramPage:
     def __init__(self, master, go_back_callback):
@@ -130,57 +132,31 @@ class InstagramPage:
                     ok_button.click()
 
                     try:
-                        WebDriverWait(driver, 10).until(
-                            EC.invisibility_of_element_located((By.XPATH, "//div[contains(@class, 'x1ey2m1c')]"))
-                        )
-
+                        # Шаг 1: Клик по кнопке "Выбрать размер и обрезать"
                         crop_button = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.XPATH, "//svg[@aria-label='Выбрать размер и обрезать']"))
+                            EC.presence_of_element_located(
+                                (By.XPATH, "//button[contains(@class, '_acan _acao _acas _aj1- _ap30')]"))
                         )
-                        driver.execute_script("arguments[0].scrollIntoView(true);", crop_button)
-                        driver.execute_script("arguments[0].click();", crop_button)
-                    except Exception as e:
-                        print(f"Ошибка при клике на кнопку 'Выбрать размер и обрезать': {e}")
 
-                    try:
-                        format_9_16 = WebDriverWait(driver, 1).until(
-                            EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '9:16')]"))
+                        # Прокручиваем страницу к кнопке
+                        driver.execute_script("arguments[0].scrollIntoView();", crop_button)
+
+                        # Ожидаем, пока элемент станет кликабельным
+                        WebDriverWait(driver, 5).until(EC.element_to_be_clickable(crop_button))
+
+                        # Используем JavaScript для клика, чтобы избежать ошибки перекрытия
+                        driver.execute_script("arguments[0].click();", crop_button)
+
+                        # Шаг 2: Выбираем разрешение 9:16
+                        format_9_16 = WebDriverWait(driver, 10).until(
+                            EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '9:16')]"))
                         )
-                        format_9_16.click()
-                    except:
-                        try:
-                            format_9_16 = WebDriverWait(driver, 1).until(
-                                EC.element_to_be_clickable((By.XPATH, "//svg[@aria-label='Значок обрезки в портной ориентации']"))
-                            )
-                            format_9_16.click()
-                        except:
-                            try:
-                                format_9_16 = WebDriverWait(driver, 1).until(
-                                    EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'x1n2onr6') and contains(@class, 'x1plvlek')]"))
-                                )
-                                format_9_16.click()
-                            except:
-                                try:
-                                    format_9_16 = WebDriverWait(driver, 1).until(
-                                        EC.element_to_be_clickable((By.XPATH, "//svg[contains(@viewBox, '0 0 24 24')]//path[contains(@d, 'M16 23H8a4.004 4.004 0 0 1-4-4V5a4.004 4.004 0 0 1 4-4h8a4.004 4.004 0 0 1 4 4v14a4.004 4.004 0 0 1-4 4ZM8 3a2.002 2.002 0 0 0-2 2v14a2.002 2.002 0 0 0 2 2h8a2.002 2.002 0 0 0 2-2V5a2.002 2.002 0 0 0-2-2Z')]"))
-                                    )
-                                    format_9_16.click()
-                                except:
-                                    try:
-                                        format_9_16 = WebDriverWait(driver, 1).until(
-                                            EC.element_to_be_clickable((By.XPATH, "//svg[title='Значок обрезки в портной ориентации']"))
-                                        )
-                                        format_9_16.click()
-                                    except:
-                                        try:
-                                            format_9_16 = WebDriverWait(driver, 1).until(
-                                                EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'x1n2onr6')]"))
-                                            )
-                                            driver.execute_script("arguments[0].click();", format_9_16)
-                                            format_9_16.click()
-                                        except Exception as e:
-                                            print(f"Кнопка выбора формата 9:16 не найдена: {e}")
-                                            raise
+                        driver.execute_script("arguments[0].click();", format_9_16)
+                        logger.info("Разрешение 9:16 выбрано.")
+
+                    except Exception as e:
+                        logger.error(f"Ошибка при выборе разрешения: {e}")
+                        raise
 
                 next_button = WebDriverWait(driver, 120).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Далее')]"))
