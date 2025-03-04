@@ -1,5 +1,4 @@
 import tkinter as tk
-from asyncio.log import logger
 from tkinter import filedialog
 import threading
 import time
@@ -119,44 +118,67 @@ class InstagramPage:
                     )
                     file_input.send_keys(video)
 
-                next_button = WebDriverWait(driver, 120).until(
-                    EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Далее')]"))
-                )
-
                 try:
-                    next_button.click()
-                except:
-                    ok_button = WebDriverWait(driver, 120).until(
+                    ok_button = WebDriverWait(driver, 5).until(
                         EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'OK')]"))
                     )
                     ok_button.click()
+                    print("Окно 'OK' найдено и закрыто.")
+                except:
+                    print("Окно 'OK' отсутствует, продолжаем выполнение.")
 
-                    try:
-                        # Шаг 1: Клик по кнопке "Выбрать размер и обрезать"
-                        crop_button = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located(
-                                (By.XPATH, "//button[contains(@class, '_acan _acao _acas _aj1- _ap30')]"))
+                try:
+                    # Ожидание появления окна "Обрезать"
+                    WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located(
+                            (By.XPATH, "//div[@role='dialog' and @aria-label='Обрезать']")
                         )
+                    )
+                    print("Модальное окно 'Обрезать' найдено.")
 
-                        # Прокручиваем страницу к кнопке
-                        driver.execute_script("arguments[0].scrollIntoView();", crop_button)
-
-                        # Ожидаем, пока элемент станет кликабельным
-                        WebDriverWait(driver, 5).until(EC.element_to_be_clickable(crop_button))
-
-                        # Используем JavaScript для клика, чтобы избежать ошибки перекрытия
-                        driver.execute_script("arguments[0].click();", crop_button)
-
-                        # Шаг 2: Выбираем разрешение 9:16
-                        format_9_16 = WebDriverWait(driver, 10).until(
-                            EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), '9:16')]"))
+                    # Ожидание и выбор кнопки "Выбрать размер и обрезать"
+                    crop_button = WebDriverWait(driver, 10).until(
+                        EC.element_to_be_clickable(
+                            (By.XPATH, "//div[@role='dialog' and @aria-label='Обрезать']//button")
                         )
-                        driver.execute_script("arguments[0].click();", format_9_16)
-                        logger.info("Разрешение 9:16 выбрано.")
+                    )
 
-                    except Exception as e:
-                        logger.error(f"Ошибка при выборе разрешения: {e}")
-                        raise
+                    driver.execute_script("arguments[0].scrollIntoView();", crop_button)
+                    driver.execute_script("arguments[0].click();", crop_button)
+                    print("Кнопка 'Выбрать размер и обрезать' нажата.")
+
+                    # Проверяем, появилось ли меню выбора форматов
+                    WebDriverWait(driver, 5).until(
+                        EC.presence_of_element_located(
+                            (By.XPATH,
+                             "//div[@role='dialog' and @aria-label='Обрезать']//span[contains(text(), '9:16')]")
+                        )
+                    )
+
+                    # Ожидание и выбор разрешения 9:16
+                    format_9_16 = WebDriverWait(driver, 10).until(
+                        EC.element_to_be_clickable(
+                            (By.XPATH,
+                             "//div[@role='dialog' and @aria-label='Обрезать']//span[contains(text(), '9:16')]")
+                        )
+                    )
+
+                    driver.execute_script("arguments[0].scrollIntoView();", format_9_16)
+                    driver.execute_script("arguments[0].click();", format_9_16)
+                    print("Формат 9:16 успешно выбран.")
+
+                except Exception as e:
+                    print(f"Ошибка при выборе разрешения 9:16: {e}")
+
+                    # Логируем HTML страницы в случае ошибки
+                    with open("error_page.html", "w", encoding="utf-8") as f:
+                        f.write(driver.page_source)
+                    print("HTML страницы сохранен в error_page.html для анализа.")
+
+                next_button = WebDriverWait(driver, 120).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Далее')]"))
+                )
+                next_button.click()
 
                 next_button = WebDriverWait(driver, 120).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Далее')]"))
