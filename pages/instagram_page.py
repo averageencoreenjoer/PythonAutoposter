@@ -128,7 +128,6 @@ class InstagramPage:
                     print("Окно 'OK' отсутствует, продолжаем выполнение.")
 
                 try:
-                    # Ожидание появления окна "Обрезать"
                     WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located(
                             (By.XPATH, "//div[@role='dialog' and @aria-label='Обрезать']")
@@ -136,7 +135,6 @@ class InstagramPage:
                     )
                     print("Модальное окно 'Обрезать' найдено.")
 
-                    # Ожидание и выбор кнопки "Выбрать размер и обрезать"
                     crop_button = WebDriverWait(driver, 10).until(
                         EC.element_to_be_clickable(
                             (By.XPATH, "//div[@role='dialog' and @aria-label='Обрезать']//button")
@@ -147,7 +145,6 @@ class InstagramPage:
                     driver.execute_script("arguments[0].click();", crop_button)
                     print("Кнопка 'Выбрать размер и обрезать' нажата.")
 
-                    # Проверяем, появилось ли меню выбора форматов
                     WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located(
                             (By.XPATH,
@@ -155,7 +152,6 @@ class InstagramPage:
                         )
                     )
 
-                    # Ожидание и выбор разрешения 9:16
                     format_9_16 = WebDriverWait(driver, 10).until(
                         EC.element_to_be_clickable(
                             (By.XPATH,
@@ -169,11 +165,6 @@ class InstagramPage:
 
                 except Exception as e:
                     print(f"Ошибка при выборе разрешения 9:16: {e}")
-
-                    # Логируем HTML страницы в случае ошибки
-                    with open("error_page.html", "w", encoding="utf-8") as f:
-                        f.write(driver.page_source)
-                    print("HTML страницы сохранен в error_page.html для анализа.")
 
                 next_button = WebDriverWait(driver, 120).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Далее')]"))
