@@ -30,7 +30,7 @@ pip install pillow selenium webdriver_manager
 1. **Run the Script**: Execute the script using Python.
 
    ```bash
-   python social_media_uploader.py
+   python app.py
    ```
 
 2. **Select a Platform**: The main window will display buttons for each social media platform. Click on the platform you want to upload to.
