@@ -46,7 +46,7 @@ pip install pillow selenium webdriver_manager
 
 ## File Structure
 
-- **`social_media_uploader.py`**: The main script containing the GUI and upload logic.
+- **`pages/`**: The main script containing the GUI and upload logic.
 - **`icons/`**: Directory containing icons for each social media platform (e.g., `instagram_icon.png`, `tiktok_icon.png`, etc.).
 
 ## Notes
